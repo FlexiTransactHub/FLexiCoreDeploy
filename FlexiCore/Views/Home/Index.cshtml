@@ -1,0 +1,145 @@
+﻿@{
+    ViewData["Title"] = "FlexiTransact - Command the Future of Transactions";
+}
+
+<div class="hero-section position-relative text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold">Execute Global Transactions</h1>
+                <p class="lead mb-4">Real-time banking, POS, self-checkout, payment gateways, and FPP software. Command kiosks and transactions worldwide with military precision.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg">Receive Payment</a>
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg">Manage Business</a>
+                    <a href="#solutions" class="btn btn-outline-light btn-lg">Scan Solutions</a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-end">
+                <canvas id="energy-canvas" style="width: 30%; height: 400px; position: absolute; right: 0; top: 50%; transform: translateY(-50%);" class="d-none d-lg-block"></canvas>
+                <canvas id="energy-canvas-mobile" style="width: 100%; height: 200px; margin-bottom: 20px;" class="d-lg-none"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="about" class="py-5 bg-dark">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <video autoplay muted loop playsinline class="w-100" style="max-height: 300px; object-fit: cover;">
+                    <source src="https://via.placeholder.com/640x360.mp4?text=Demo+Video" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="fw-bold">About FlexiTransact</h2>
+                <p class="lead">We empower entrepreneurs with cutting-edge fintech solutions, delivering real-time control over banking, POS, and self-checkout systems globally. Our mission is to provide secure, scalable, and precise tools for your business empire.</p>
+                <a asp-controller="Home" asp-action="About" class="btn btn-primary">Learn More About Us</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="solutions" class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5 fw-bold">Strategic Solutions</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="product-card text-center">
+                    <img src="~/assert_img/flexitransact_pos.jpg" class="img-fluid mb-3" alt="Pos">
+                    <h5 class="fw-bold">Retail POS</h5>
+                    <p>Precision-engineered systems for frontline retail efficiency.</p>
+                    <a href="#" class="btn btn-primary">Deploy</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="product-card text-center">
+                    <img src="~/assert_img/flexitransact_kioks.jpg" class="img-fluid mb-3" alt="Self-Checkout">
+
+                    <h5 class="fw-bold">Self-Checkout Systems</h5>
+                    <p>Autonomous kiosks for strategic customer engagement.</p>
+                    <a href="#" class="btn btn-primary">Deploy</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="product-card text-center">
+                    <img src="~/assert_img/flexitransact_payment.jpg" class="img-fluid mb-3" alt="Payment Gateway">
+                    <h5 class="fw-bold">Payment Gateway</h5>
+                    <p>Secure channels for global transaction dominance.</p>
+                    <a href="#" class="btn btn-primary">Deploy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function initEnergyAnimation(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            class EnergyLine {
+                constructor() {
+                    this.x = 0;
+                    this.y = Math.random() * canvas.height;
+                    this.length = Math.random() * 100 + 50;
+                    this.speed = Math.random() * 2 + 1;
+                    this.offset = 0;
+                }
+                update() {
+                    this.offset += this.speed;
+                    if (this.offset > canvas.width) {
+                        this.offset = 0;
+                        this.y = Math.random() * canvas.height;
+                    }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.moveTo(this.offset, this.y);
+                    ctx.lineTo(this.offset + this.length, this.y);
+                    ctx.strokeStyle = 'rgba(24, 119, 242, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#1877F2';
+                    ctx.stroke();
+
+                    // Add rigid branches
+                    ctx.beginPath();
+                    ctx.moveTo(this.offset + this.length / 2, this.y);
+                    ctx.lineTo(this.offset + this.length / 2, this.y + (Math.random() * 20 - 10));
+                    ctx.stroke();
+                }
+            }
+
+            const lines = [];
+            for (let i = 0; i < 20; i++) {
+                lines.push(new EnergyLine());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                lines.forEach(line => {
+                    line.update();
+                    line.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initEnergyAnimation('energy-canvas');
+            initEnergyAnimation('energy-canvas-mobile');
+        });
+    </script>
+}

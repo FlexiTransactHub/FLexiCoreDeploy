@@ -1,0 +1,2 @@
+# FlexiCore.Solution
+Core infrastructure 

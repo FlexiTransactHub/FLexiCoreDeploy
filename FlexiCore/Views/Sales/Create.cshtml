@@ -1,0 +1,123 @@
+﻿@model FlexiCore.Models.Sale
+@using FlexiCore.Models
+
+<h2>Create Sale</h2>
+<form asp-action="Create">
+    @{
+        var branch = ViewData["Branch"] as Branch;
+        var branches = ViewData["Branches"] as List<Branch> ?? new List<Branch>();
+    }
+
+    @if (branch != null)
+    {
+        <input type="hidden" asp-for="BranchId" />
+        <div class="form-group">
+            <label>Branch</label>
+            <input type="text" class="form-control" value="@branch.Name" readonly />
+        </div>
+    }
+    else
+    {
+        <div class="form-group">
+            <label asp-for="BranchId">Branch</label>
+            <select asp-for="BranchId" class="form-control" required>
+                <option value="">Select Branch</option>
+                @if (branches != null)
+                {
+                    @foreach (var b in branches)
+                    {
+                        <option value="@b.Id">@b.Name</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="BranchId" class="text-danger"></span>
+        </div>
+    }
+
+    <div class="form-group">
+        <label asp-for="EmployeeId"></label>
+        <select asp-for="EmployeeId" class="form-control">
+            <option value="">Select Employee</option>
+            @foreach (var employee in ViewData["Employees"] as List<Employee> ?? new List<Employee>())
+            {
+                <option value="@employee.Id">@employee.Name</option>
+            }
+        </select>
+        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <h4>Sale Items</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product/Service</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                </tr>
+            </thead>
+            //pushing comment 
+            <tbody id="saleItems">
+                <tr>
+                    <td>
+                        <select name="productIds" class="form-control">
+                            <option value="0">Select Product</option>
+                            @foreach (var product in ViewData["Products"] as List<Product> ?? new List<Product>())
+                            {
+                                <option value="@product.Id">@product.Name</option>
+                            }
+                        </select>
+                        <select name="serviceIds" class="form-control">
+                            <option value="0">Select Service</option>
+                            @foreach (var service in ViewData["Services"] as List<Service> ?? new List<Service>())
+                            {
+                                <option value="@service.Id">@service.Name</option>
+                            }
+                        </select>
+                    </td>
+                    <td><input type="number" name="quantities" class="form-control" min="1" /></td>
+                    <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="addSaleItem()" class="btn btn-secondary">Add Item</button>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+@if (Model.BranchId > 0)
+{
+    <a asp-action="Index" asp-route-branchId="@Model.BranchId">Back to List</a>
+}
+else
+{
+    <a asp-action="Index">Back to List</a>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function addSaleItem() {
+            var table = document.getElementById("saleItems");
+            var row = table.insertRow();
+            row.innerHTML = `
+                <td>
+                    <select name="productIds" class="form-control">
+                        <option value="0">Select Product</option>
+                        @foreach (var product in ViewData["Products"] as List<Product> ?? new List<Product>())
+                        {
+                                <option value="@product.Id">@product.Name</option>
+                        }
+                    </select>
+                    <select name="serviceIds" class="form-control">
+                        <option value="0">Select Service</option>
+                        @foreach (var service in ViewData["Services"] as List<Service> ?? new List<Service>())
+                        {
+                                <option value="@service.Id">@service.Name</option>
+                        }
+                    </select>
+                </td>
+                <td><input type="number" name="quantities" class="form-control" min="1" /></td>
+                <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" /></td>
+            `;
+        }
+    </script>
+}

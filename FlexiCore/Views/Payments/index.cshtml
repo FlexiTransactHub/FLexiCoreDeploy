@@ -1,0 +1,95 @@
+﻿@model FlexiCore.Models.PaymentsDashboardViewModel
+@using System.Linq
+
+<div class="container py-5">
+    <h1 class="display-4 fw-bold text-white mb-5">Payments Dashboard</h1>
+    <div class="d-flex justify-content-between mb-4">
+        <a asp-action="Create" asp-controller="Payments" class="btn btn-primary btn-lg shadow-glow">Create Payment Link</a>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card bg-dark border-primary shadow-glow mb-5">
+        <div class="card-body">
+            <h3 class="text-white fw-bold mb-4">Recent Transactions</h3>
+            @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
+            {
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in Model.RecentTransactions)
+                        {
+                            <tr>
+                                <td>@transaction.CreatedAt.ToString("g")</td>
+                                <td>@transaction.Amount.ToString("C")</td>
+                                <td>@transaction.PaymentMethod</td>
+                                <td>@transaction.Status</td>
+                                <td>@transaction.TransactionReference</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <a asp-action="Transactions" asp-controller="Payments" class="btn btn-outline-light">View All Transactions</a>
+            }
+            else
+            {
+                <p class="text-white">No transactions yet. Start by creating a payment link.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Recent Payment Links -->
+    <div class="card bg-dark border-primary shadow-glow">
+        <div class="card-body">
+            <h3 class="text-white fw-bold mb-4">Recent Payment Links</h3>
+            @if (Model.RecentPaymentLinks != null && Model.RecentPaymentLinks.Any())
+            {
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Created</th>
+                            <th>Amount</th>
+                            <th>Link</th>
+                            <th>Payment Methods</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var link in Model.RecentPaymentLinks)
+                        {
+                            <tr>
+                                <td>@link.CreatedAt.ToString("g")</td>
+                                <td>@link.Amount.ToString("C")</td>
+                                <td>
+                                    <a href="@@(Request.Scheme + "://" + Request.Host + link.LinkUrl)" class="text-primary">
+                                        @@(Request.Scheme + "://" + Request.Host + link.LinkUrl)
+                                    </a>
+                                </td>
+                                <td>
+                                    @(link.NairaEnabled ? "Naira (Paystack)" : "")
+                                    @(link.NairaEnabled && link.CryptoEnabled ? ", " : "")
+                                    @(link.CryptoEnabled ? "Crypto" : "")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <a asp-action="PaymentLinks" asp-controller="Payments" class="btn btn-outline-light">View All Payment Links</a>
+            }
+            else
+            {
+                <p class="text-white">No payment links created yet.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

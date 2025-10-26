@@ -1,0 +1,18 @@
+﻿@model FlexiCore.Models.Branch
+
+<h2>Create Branch</h2>
+<form asp-action="Create">
+    <input type="hidden" asp-for="BusinessId" />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+<a asp-action="Index" asp-route-businessId="@Model.BusinessId">Back to List</a>

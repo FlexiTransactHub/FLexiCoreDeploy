@@ -1,0 +1,55 @@
+﻿@model FlexiCore.Models.Employee
+@{
+    ViewData["Title"] = "Create Employee";
+    var isBranchSelectable = ViewData["IsBranchSelectable"] as bool?;
+}
+
+<h2>Create Employee</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label>Branch</label>
+        <select asp-for="BranchId" class="form-control" 
+                asp-items="@((SelectList)ViewData["Branches"])" 
+                @@(isBranchSelectable == false ? "disabled" : "")>
+            @if (isBranchSelectable == true)
+            {
+                <option value="">Select a branch</option>
+            }
+        </select>
+        <span asp-validation-for="BranchId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name">Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Role">Role</label>
+        <input asp-for="Role" class="form-control" />
+        <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        @if (ViewData.ModelState.Any(x => x.Value.Errors.Count > 0))
+        {
+            <div class="alert alert-danger">
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                }
+            </div>
+        }
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" asp-route-branchId="@ViewData["BranchId"]" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+}

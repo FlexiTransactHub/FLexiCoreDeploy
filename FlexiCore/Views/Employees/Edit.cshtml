@@ -1,0 +1,35 @@
+﻿@model FlexiCore.Models.Employee
+@{
+    ViewData["Title"] = "Edit Employee";
+    var branchId = ViewData["BranchId"] as int?;
+    var branchName = ViewData["BranchName"] as string;
+}
+
+<h2>Edit Employee</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="BranchId" />
+    <div class="form-group">
+        <label>Branch</label>
+        <input type="text" class="form-control" value="@branchName" readonly />
+    </div>
+    <div class="form-group">
+        <label asp-for="Name">Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Role">Role</label>
+        <input asp-for="Role" class="form-control" />
+        <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" asp-route-branchId="@branchId" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

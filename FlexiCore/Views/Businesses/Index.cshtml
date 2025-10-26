@@ -1,0 +1,28 @@
+﻿```cshtml
+@model IEnumerable<FlexiCore.Models.Business>
+
+<h2>My Businesses</h2>
+<a asp-action="Create" class="btn btn-primary">Create New Business</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var business in Model)
+        {
+            <tr>
+                <td>@business.Name</td>
+                <td>@business.BusinessType</td>
+                <td>
+                    <a asp-controller="Branches" asp-action="Index" asp-route-businessId="@business.Id">View Branches</a> |
+                    <a asp-controller="Products" asp-action="Index" asp-route-businessId="@business.Id">View Products</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+```

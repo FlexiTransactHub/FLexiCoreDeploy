@@ -1,0 +1,134 @@
+body {
+    background-color: #0A3D62;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #0A3D62, #2E2E2E);
+    padding: 150px 0;
+    position: relative;
+}
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(24, 119, 242, 0.2) 0%, rgba(10, 61, 98, 0) 70%);
+        animation: pulse 5s infinite;
+    }
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+.product-card {
+    background: #2E2E2E;
+    border: 1px solid #1877F2;
+    box-shadow: 0 0 20px rgba(24, 119, 242, 0.5);
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+    .product-card:hover {
+        box-shadow: 0 0 30px rgba(24, 119, 242, 0.8);
+        transform: translateY(-5px);
+    }
+
+    .product-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+.footer {
+    background-color: #0A3D62;
+    border-top: 1px solid #1877F2;
+    padding: 10px 0;
+    width: 100%;
+}
+
+    .footer a {
+        color: #1877F2;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .footer a:hover {
+            color: #ffffff;
+        }
+
+.pos-form .card, .kiosk-form .card {
+    background: #2E2E2E;
+    border: 1px solid #1877F2;
+    box-shadow: 0 0 20px rgba(24, 119, 242, 0.5);
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+    .pos-form .card:hover, .kiosk-form .card:hover {
+        box-shadow: 0 0 30px rgba(24, 119, 242, 0.8);
+        transform: translateY(-5px);
+    }
+
+.pos-form .form-select, .pos-form .form-control,
+.kiosk-form .form-select, .kiosk-form .form-control {
+    background-color: #2E2E2E;
+    border-color: #1877F2;
+    color: #ffffff;
+}
+
+    .pos-form .form-select:focus, .pos-form .form-control:focus,
+    .kiosk-form .form-select:focus, .kiosk-form .form-control:focus {
+        border-color: #ffffff;
+        box-shadow: 0 0 10px rgba(24, 119, 242, 0.7);
+    }
+
+.kiosk-form .btn-primary {
+    padding: 15px;
+    font-size: 1.2rem;
+}
+
+.kiosk-form .quick-add {
+    height: 80px;
+    font-size: 1rem;
+    text-align: center;
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+    .kiosk-form .quick-add:hover {
+        box-shadow: 0 0 30px rgba(24, 119, 242, 0.8);
+        transform: translateY(-5px);
+    }
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 100px 0;
+    }
+
+    .product-card img {
+        height: 150px;
+    }
+
+    .footer {
+        padding: 8px 0;
+    }
+
+        .footer a {
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+    .kiosk-form .quick-add {
+        height: 60px;
+        font-size: 0.9rem;
+    }
+}

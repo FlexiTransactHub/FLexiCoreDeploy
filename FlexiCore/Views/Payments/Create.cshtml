@@ -1,0 +1,106 @@
+﻿@model FlexiCore.Models.PaymentLink
+@using FlexiCore.Models
+
+<div class="container py-4">
+    <h2 class="display-6 fw-bold text-white mb-4">Create Payment Link</h2>
+    <div class="card bg-dark border-primary shadow-glow">
+        <div class="card-body">
+            <form asp-action="Create" asp-controller="Payments" method="post">
+                <input type="hidden" asp-for="BusinessId" />
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Product/Service</label>
+                    <select asp-for="ProductId" class="form-select bg-dark text-white border-primary">
+                        <option value="">Select Product</option>
+                        @foreach (var product in ViewData["Products"] as List<Product>)
+                        {
+                            <option value="@product.Id" data-price="@product.Price">@product.Name</option>
+                        }
+                    </select>
+                    <select asp-for="ServiceId" class="form-select bg-dark text-white border-primary mt-2">
+                        <option value="">Select Service</option>
+                        @foreach (var service in ViewData["Services"] as List<Service>)
+                        {
+                            <option value="@service.Id" data-price="@service.Price">@service.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Amount" class="form-label text-white fw-bold">Amount (₦)</label>
+                    <input asp-for="Amount" class="form-control bg-dark text-white border-primary" type="number" step="0.01" min="0" required />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+                <div class="mb-3 form-check">
+                    <input asp-for="NairaEnabled" class="form-check-input" type="checkbox" onchange="toggleNairaFields()" />
+                    <label asp-for="NairaEnabled" class="form-check-label text-white">Enable Naira Payment (Paystack)</label>
+                </div>
+                <div class="naira-fields" id="nairaFields">
+                    <div class="mb-3">
+                        <label asp-for="PaystackKey" class="form-label text-white fw-bold">Paystack Public Key</label>
+                        <input asp-for="PaystackKey" class="form-control bg-dark text-white border-primary" type="text" placeholder="e.g., pk_live_abcdef123456" />
+                        <span asp-validation-for="PaystackKey" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mb-3 form-check">
+                    <input asp-for="CryptoEnabled" class="form-check-input" type="checkbox" onchange="toggleCryptoFields()" />
+                    <label asp-for="CryptoEnabled" class="form-check-label text-white">Enable Crypto Payments (Bitcoin, USDT)</label>
+                </div>
+                <div class="crypto-fields" id="cryptoFields">
+                    <div class="mb-3">
+                        <label asp-for="CryptoWalletAddress" class="form-label text-white fw-bold">Crypto Wallet Address</label>
+                        <input asp-for="CryptoWalletAddress" class="form-control bg-dark text-white border-primary" type="text" placeholder="e.g., 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" />
+                        <span asp-validation-for="CryptoWalletAddress" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white fw-bold">Button Color</label>
+                    <select class="form-select bg-dark text-white border-primary" name="buttonColor">
+                        <option value="primary">Primary (Blue)</option>
+                        <option value="secondary">Secondary (Gray)</option>
+                        <option value="success">Success (Green)</option>
+                        <option value="danger">Danger (Red)</option>
+                        <option value="warning">Yellow</option>
+                        <option value="info">Info (Cyan)</option>
+                        <option value="dark">Dark (Black)</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Generate Payment Link</button>
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-outline-light btn-lg">Back to Home</a>
+                </div>
+            </form>
+            <div class="guide text-white mt-3">
+                <p>Need a Paystack key? <a href="https://paystack.com" class="text-primary" target="_blank">Sign up free in 5 minutes</a>.</p>
+                <p>Find your public key in Paystack Dashboard > Settings > API Keys.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function toggleCryptoFields() {
+            const cryptoFields = document.getElementById("cryptoFields");
+            const cryptoEnabled = document.getElementById("CryptoEnabled").checked;
+            cryptoFields.classList.toggle("active", cryptoEnabled);
+            document.getElementById("CryptoWalletAddress").required = cryptoEnabled;
+        }
+
+        function toggleNairaFields() {
+            const nairaFields = document.getElementById("nairaFields");
+            const nairaEnabled = document.getElementById("NairaEnabled").checked;
+            nairaFields.classList.toggle("active", nairaEnabled);
+            document.getElementById("PaystackKey").required = nairaEnabled;
+        }
+
+        document.querySelectorAll("select[asp-for='ProductId'], select[asp-for='ServiceId']").forEach(select => {
+            select.addEventListener("change", function () {
+                const amountInput = document.getElementById("Amount");
+                if (this.value) {
+                    const price = this.options[this.selectedIndex].dataset.price;
+                    amountInput.value = price || "";
+                }
+            });
+        });
+    </script>
+}

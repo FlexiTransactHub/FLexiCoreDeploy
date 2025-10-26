@@ -1,0 +1,178 @@
+﻿@model FlexiCore.Models.Sale
+@using FlexiCore.Models
+
+<div class="container py-4">
+    <h2 class="display-6 fw-bold text-white mb-4">Create POS Sale</h2>
+    <form asp-action="Create" asp-controller="PosTerminalSales" asp-area="" class="pos-form">
+        <input type="hidden" asp-for="BranchId" />
+        <div class="row g-4">
+            <!-- Employee Selection -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card bg-dark border-primary shadow-glow">
+                    <div class="card-body">
+                        <label asp-for="EmployeeId" class="form-label text-white fw-bold">Staff</label>
+                        <select asp-for="EmployeeId" class="form-select bg-dark text-white border-primary">
+                            <option value="">Select Staff</option>
+                            @foreach (var employee in ViewData["Employees"] as List<Employee>)
+                            {
+                                <option value="@employee.Id">@employee.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Display -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card bg-dark border-primary shadow-glow">
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold text-white">Total</h5>
+                        <h3 id="totalAmount" class="text-primary mb-0">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sale Items Grid -->
+        <div class="card bg-dark border-primary shadow-glow mt-4">
+            <div class="card-body">
+                <h4 class="fw-bold text-white mb-3">Sale Items</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark">
+                        <thead>
+                            <tr>
+                                <th>Product/Service</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="saleItems">
+                            <tr>
+                                <td>
+                                    <select name="productIds" class="form-select bg-dark text-white border-primary product-select">
+                                        <option value="0">Select Product</option>
+                                        @foreach (var product in ViewData["Products"] as List<Product>)
+                                        {
+                                            <option value="@product.Id" data-price="@product.Price">@product.Name</option>
+                                        }
+                                    </select>
+                                    <select name="serviceIds" class="form-select bg-dark text-white border-primary mt-2 service-select">
+                                        <option value="0">Select Service</option>
+                                        @foreach (var service in ViewData["Services"] as List<Service>)
+                                        {
+                                            <option value="@service.Id" data-price="@service.Price">@service.Name</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td><input type="number" name="quantities" class="form-control bg-dark text-white border-primary quantity" min="1" value="1" /></td>
+                                <td><input type="number" name="unitPrices" class="form-control bg-dark text-white border-primary unit-price" step="0.01" min="0" /></td>
+                                <td class="item-total text-primary">$0.00</td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addSaleItem()" class="btn btn-primary mt-3">Add Item</button>
+            </div>
+        </div>
+        <!-- Action Buttons -->
+        <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Process Sale</button>
+            <a asp-action="Index" asp-controller="Sales" asp-route-branchId="@Model.BranchId" class="btn btn-outline-light btn-lg">Back to Sales</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function addSaleItem() {
+            const table = document.getElementById("saleItems");
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td>
+                    <select name="productIds" class="form-select bg-dark text-white border-primary product-select">
+                        <option value="0">Select Product</option>
+                        @foreach (var product in ViewData["Products"] as List<Product>)
+                        {
+                                <option value="@product.Id" data-price="@product.Price">@product.Name</option>
+                        }
+                    </select>
+                    <select name="serviceIds" class="form-select bg-dark text-white border-primary mt-2 service-select">
+                        <option value="0">Select Service</option>
+                        @foreach (var service in ViewData["Services"] as List<Service>)
+                        {
+                                <option value="@service.Id" data-price="@service.Price">@service.Name</option>
+                        }
+                    </select>
+                </td>
+                <td><input type="number" name="quantities" class="form-control bg-dark text-white border-primary quantity" min="1" value="1" /></td>
+                <td><input type="number" name="unitPrices" class="form-control bg-dark text-white border-primary unit-price" step="0.01" min="0" /></td>
+                <td class="item-total text-primary">$0.00</td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+            `;
+            attachEventListeners(row);
+            updateTotal();
+        }
+
+        function attachEventListeners(row) {
+            const productSelect = row.querySelector(".product-select");
+            const serviceSelect = row.querySelector(".service-select");
+            const quantityInput = row.querySelector(".quantity");
+            const unitPriceInput = row.querySelector(".unit-price");
+            const removeButton = row.querySelector(".remove-item");
+
+            productSelect.addEventListener("change", function () {
+                if (this.value != "0") {
+                    serviceSelect.value = "0";
+                    unitPriceInput.value = this.options[this.selectedIndex].dataset.price || "";
+                }
+                updateItemTotal(row);
+                updateTotal();
+            });
+
+            serviceSelect.addEventListener("change", function () {
+                if (this.value != "0") {
+                    productSelect.value = "0";
+                    unitPriceInput.value = this.options[this.selectedIndex].dataset.price || "";
+                }
+                updateItemTotal(row);
+                updateTotal();
+            });
+
+            quantityInput.addEventListener("input", function () {
+                updateItemTotal(row);
+                updateTotal();
+            });
+
+            unitPriceInput.addEventListener("input", function () {
+                updateItemTotal(row);
+                updateTotal();
+            });
+
+            removeButton.addEventListener("click", function () {
+                row.remove();
+                updateTotal();
+            });
+        }
+
+        function updateItemTotal(row) {
+            const quantity = parseFloat(row.querySelector(".quantity").value) || 0;
+            const unitPrice = parseFloat(row.querySelector(".unit-price").value) || 0;
+            const total = (quantity * unitPrice).toFixed(2);
+            row.querySelector(".item-total").textContent = `$${total}`;
+        }
+
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll("#saleItems tr").forEach(row => {
+                const itemTotal = parseFloat(row.querySelector(".item-total").textContent.replace("$", "")) || 0;
+                total += itemTotal;
+            });
+            document.getElementById("totalAmount").textContent = `$${total.toFixed(2)}`;
+        }
+
+        document.querySelectorAll("#saleItems tr").forEach(row => attachEventListeners(row));
+    </script>
+}

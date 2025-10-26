@@ -1,0 +1,34 @@
+﻿@model IEnumerable<FlexiCore.Models.Branch>
+
+@{
+    var businessId = ViewData["BusinessId"];
+}
+
+<h2>Branches</h2>
+<p>
+    <a asp-action="Create" asp-route-businessId="@businessId" class="btn btn-primary">Create New Branch</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var branch in Model)
+        {
+            <tr>
+                <td>@branch.Name</td>
+                <td>@branch.Address</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@branch.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@branch.Id">Delete</a> |
+                    <a asp-controller="Sales" asp-action="Index" asp-route-branchId="@branch.Id">View Sales</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="Businesses" asp-action="Index">Back to Businesses</a>

@@ -1,0 +1,51 @@
+﻿@model FlexiCore.Models.PaymentLink
+
+<div class="container py-4">
+    <h2 class="display-6 fw-bold text-white mb-4">Complete Your Payment</h2>
+    <div class="card bg-dark border-primary shadow-glow">
+        <div class="card-body">
+            <h5 class="text-white fw-bold">Payment Details</h5>
+            <p class="text-white">Amount: @Model.Amount.ToString("C")</p>
+            @if (Model.NairaEnabled)
+            {
+                <div class="mb-3">
+                    <h6 class="text-white fw-bold">Pay with Naira (Paystack)</h6>
+                    <button id="paystackButton" class="btn btn-primary">Pay Now</button>
+                </div>
+            }
+            @if (Model.CryptoEnabled)
+            {
+                <div class="mb-3">
+                    <h6 class="text-white fw-bold">Pay with Crypto (Bitcoin, USDT)</h6>
+                    <p class="text-white">Send payment to wallet address: @Model.CryptoWalletAddress</p>
+                    <p class="text-white">Please confirm with the merchant after sending crypto.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (Model.NairaEnabled)
+    {
+        <script src="https://js.paystack.co/v2/inline.js"></script>
+        <script>
+            document.getElementById("paystackButton").addEventListener("click", function () {
+                const handler = PaystackPop.setup({
+                    key: '@Model.PaystackKey',
+                    email: 'customer@example.com', // Replace with customer email
+                    amount: @((Model.Amount * 100).ToString()), // Paystack expects amount in kobo
+                    currency: 'NGN',
+                    callback: function (response) {
+                        alert('Payment successful! Reference: ' + response.reference);
+                        // Redirect or handle post-payment logic
+                    },
+                    onClose: function () {
+                        alert('Payment window closed.');
+                    }
+                });
+                handler.openIframe();
+            });
+        </script>
+    }
+}

@@ -1,0 +1,138 @@
+﻿@model FlexiCore.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    body {
+        background-color: white;
+        color: #333;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        background-color: #1877F2;
+        color: white;
+    }
+    .btn-primary {
+        background-color: #1877F2;
+        border-color: #1877F2;
+    }
+    .table thead {
+        background-color: #1877F2;
+        color: white;
+    }
+</style>
+
+<div class="container my-4">
+    <h1 class="text-center mb-4">Business Dashboard</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Businesses", Value = Model.TotalBusinesses.ToString(), Icon = "bi-building" }' />
+        </div>
+        <div class="col-md-3">
+            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Branches", Value = Model.TotalBranches.ToString(), Icon = "bi-shop" }' />
+        </div>
+        <div class="col-md-3">
+            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Products", Value = Model.TotalProducts.ToString(), Icon = "bi-box-seam" }' />
+        </div>
+        <div class="col-md-3">
+            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Employees", Value = Model.TotalEmployees.ToString(), Icon = "bi-people" }' />
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Total Sales Amount</div>
+                <div class="card-body text-center">
+                    <h3>@Model.TotalSalesAmount.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Sales Trend (Last 7 Days)</div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Recent Sales</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Branch</th>
+                                <th>Employee</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sale in Model.RecentSales)
+                            {
+                                <tr>
+                                    <td>@sale.SaleDate.ToString("g")</td>
+                                    <td>@sale.Branch?.Name</td>
+                                    <td>@sale.Employee?.Name</td>
+                                    <td>@sale.TotalAmount.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Future Functionalities</div>
+                <div class="card-body">
+                    <p>Placeholder for additional widgets, such as:</p>
+                    <ul>
+                        <li>Inventory Alerts</li>
+                        <li>Employee Performance</li>
+                        <li>Customer Analytics</li>
+                        <li>Branch Comparison</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [@string.Join(",", Model.SalesChartLabels.Select(l => $"'{l}'"))],
+                datasets: [{
+                    label: 'Sales',
+                    data: [@string.Join(",", Model.SalesChartValues)],
+                    borderColor: '#1877F2',
+                    backgroundColor: 'rgba(24, 119, 242, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

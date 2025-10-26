@@ -1,0 +1,37 @@
+﻿@model IEnumerable<FlexiCore.Models.Sale>
+
+@{
+    var branchId = ViewData["BranchId"];
+}
+
+<h2>Sales</h2>
+<p>
+    <a asp-action="Create" asp-route-branchId="@branchId" class="btn btn-primary">Create New Sale</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sale Date</th>
+            <th>Total Amount</th>
+            <th>Employee</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sale in Model)
+        {
+            <tr>
+                <td>@sale.SaleDate.ToString("g")</td>
+                <td>@sale.TotalAmount.ToString("C")</td>
+                <td>@sale.Employee?.Name</td>
+                <td>@sale.SaleItems.Count</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@sale.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@sale.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="Branches" asp-action="Index" asp-route-businessId="@Model.FirstOrDefault()?.BusinessId">Back to Branches</a>

@@ -1,0 +1,83 @@
+﻿@model IEnumerable<FlexiCore.Models.Employee>
+@{
+    ViewData["Title"] = "Employees";
+    var branchNames = ViewData["BranchNames"] as Dictionary<int, string>;
+    var businessNames = ViewData["BusinessNames"] as Dictionary<int, string>;
+    var branchId = ViewData["BranchId"] as int?;
+    var businessId = ViewData["BusinessId"] as int?;
+}
+
+<h2>Employees</h2>
+
+@if (branchId.HasValue)
+{
+    <p>
+        <a asp-action="Create" asp-route-branchId="@branchId" class="btn btn-primary">Create New Employee</a>
+    </p>
+}
+@if (!branchId.HasValue)
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New Employee</a>
+    </p>
+}
+
+@if (!Model.Any())
+{
+    <p>No employees found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Branch</th>
+                <th>Business</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in Model)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>@employee.Role</td>
+                    <td>@(branchNames.ContainsKey(employee.BranchId) ? branchNames[employee.BranchId] : "Unknown")</td>
+                    <td>
+                        @if (employee.Branch != null && businessNames != null && businessNames.ContainsKey(employee.Branch.BusinessId))
+                        {
+                            @businessNames[employee.Branch.BusinessId]
+                        }
+                        else
+                        {
+                            @:Unknown
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@employee.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (branchId.HasValue && businessId.HasValue)
+{
+    <p>
+        <a asp-controller="Branches" asp-action="Index" asp-route-businessId="@businessId" class="btn btn-secondary">Back to Branches</a>
+    </p>
+}
+else
+{
+    <p>
+        <a asp-controller="Businesses" asp-action="Index" class="btn btn-secondary">Back to Businesses</a>
+    </p>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

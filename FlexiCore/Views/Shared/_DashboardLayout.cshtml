@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FlexiCore</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <style>
+        body {
+            background-color: white;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+            .sidebar a {
+                color: #333;
+                padding: 10px 20px;
+                display: block;
+                text-decoration: none;
+            }
+
+                .sidebar a:hover {
+                    background-color: #1877F2;
+                    color: white;
+                }
+
+                .sidebar a.active {
+                    background-color: #1877F2;
+                    color: white;
+                }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #1877F2;
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">FlexiCore</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Hello, @User.Identity.Name!</a>
+                            </li>
+                            <li class="nav-item">
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                                    <button type="submit" class="nav-link btn btn-link">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="sidebar">
+        <a asp-controller="Dashboard" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a asp-controller="Businesses" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Businesses" ? "active" : "")">
+            <i class="bi bi-building me-2"></i>Businesses
+        </a>
+        <a asp-controller="Branches" asp-action="Index" asp-route-businessId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Branches" ? "active" : "")">
+            <i class="bi bi-shop me-2"></i>Branches
+        </a>
+        <a asp-controller="Products" asp-action="Index" asp-route-businessId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")">
+            <i class="bi bi-box-seam me-2"></i>Products
+        </a>
+        <a asp-controller="Employees" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")">
+            <i class="bi bi-people me-2"></i>Employees
+        </a>
+        <a asp-controller="Sales" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")">
+            <i class="bi bi-cart-check me-2"></i>Sales
+        </a>
+        <a asp-controller="Payments" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "active" : "")">
+            <i class="bi bi-credit-card me-2"></i>Payment
+        </a>
+
+        <a asp-controller="OnlineStore" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "OnlineStore" ? "active" : "")">
+            <i class="bi bi-bag me-2"></i>Online Store
+        </a>
+        <a asp-controller="Hardware" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Hardware" ? "active" : "")">
+            <i class="bi bi-display me-2"></i>Hardware
+        </a>
+
+    </div>
+    <div class="content">
+        @RenderBody()
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

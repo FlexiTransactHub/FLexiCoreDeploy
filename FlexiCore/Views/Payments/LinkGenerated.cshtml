@@ -1,0 +1,50 @@
+﻿@model FlexiCore.Models.PaymentLink
+
+<div class="container py-4">
+    <h2 class="display-6 fw-bold text-white mb-4">Payment Link Generated</h2>
+    <div class="card bg-dark border-primary shadow-glow">
+        <div class="card-body">
+            <h5 class="text-white fw-bold">Payment Link</h5>
+            <textarea class="form-control bg-dark text-white border-primary" rows="2" readonly>@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)</textarea>
+            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('paymentLink')">Copy</button>
+
+            <h5 class="text-white fw-bold mt-3">Branded "Pay Now" Button</h5>
+            <textarea id="buttonCode" class="form-control bg-dark text-white border-primary" rows="4" readonly>
+            <a href="@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)" class="btn btn-@ViewBag.ButtonColor" style="padding: 12px 20px; border-radius: 8px; text-decoration: none; font-family: Inter, sans-serif; font-weight: 600;">Pay Now</a>
+            </textarea>
+            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('buttonCode')">Copy</button>
+
+            <h5 class="text-white fw-bold mt-3">WhatsApp Share Link</h5>
+            <textarea id="whatsappLink" class="form-control bg-dark text-white border-primary" rows="2" readonly>
+                https://wa.me/?text=@@(Uri.EscapeDataString($"Pay {Model.Amount:C} for your purchase: {Request.Scheme}://{Request.Host}{Model.LinkUrl}"))
+            </textarea>
+            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('whatsappLink')">Copy</button>
+
+            <h5 class="text-white fw-bold mt-3">Iframe Embed Code</h5>
+            <textarea id="iframeCode" class="form-control bg-dark text-white border-primary" rows="4" readonly>
+            <iframe src="@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)" style="border: none; width: 100%; height: 400px;"></iframe>
+            </textarea>
+            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('iframeCode')">Copy</button>
+
+            <div class="d-flex gap-3 mt-4">
+                <a asp-action="Create" asp-controller="Payments" class="btn btn-primary btn-lg">Create Another</a>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-light btn-lg">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(elementId) {
+            const textarea = document.getElementById(elementId) || document.querySelector("textarea:not([id])");
+            textarea.select();
+            try {
+                document.execCommand("copy");
+                alert("Copied to clipboard!");
+            } catch (err) {
+                alert("Failed to copy. Please copy manually.");
+            }
+        }
+    </script>
+}

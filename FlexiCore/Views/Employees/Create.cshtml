@@ -9,13 +9,16 @@
 <form asp-action="Create" method="post">
     <div class="form-group">
         <label>Branch</label>
-        <select asp-for="BranchId" 
-                class="form-control" 
-                asp-items="@((SelectList)ViewData["Branches"])" 
-                @(isBranchSelectable == false ? "disabled" : "")>
+        <select asp-for="BranchId"
+                class="form-control"
+                asp-items="@((SelectList)ViewData["Branches"])">
             @if (isBranchSelectable == true)
             {
                 <option value="">Select a branch</option>
+            }
+            @if (isBranchSelectable == false)
+            {
+                <text>disabled</text>
             }
         </select>
         <span asp-validation-for="BranchId" class="text-danger"></span>

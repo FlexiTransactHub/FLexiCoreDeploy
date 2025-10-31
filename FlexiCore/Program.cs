@@ -55,12 +55,12 @@ builder.Services.AddScoped<IPaymentTransactionService, PaymentTransactionService
 
 var app = builder.Build();
 
-// Apply migrations (optional, remove in prod)
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-}
+//// Apply migrations (optional, remove in prod)
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//    db.Database.Migrate();
+//}
 
 // Configure pipeline
 if (app.Environment.IsDevelopment())

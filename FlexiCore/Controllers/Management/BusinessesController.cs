@@ -34,6 +34,16 @@ namespace FlexiCore.Controllers.Management
         [HttpPost]
         public async Task<IActionResult> Create(Business business)
         {
+            ModelState.Remove(nameof(Business.OwnerId));
+            ModelState.Remove(nameof(Business.Owner));
+
+            if (ModelState.ContainsKey(nameof(Business.Name)))
+                ModelState[nameof(Business.Name)]?.Errors.Clear();
+
+            if (ModelState.ContainsKey(nameof(Business.BusinessType)))
+                ModelState[nameof(Business.BusinessType)]?.Errors.Clear();
+
+            // Now only Id and Name validations will count
             if (!ModelState.IsValid)
             {
                 return View(business);

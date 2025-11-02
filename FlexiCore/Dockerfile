@@ -1,4 +1,5 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+# See https://aka.ms/customizecontainer to learn how to customize your debug container
+# and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
@@ -9,15 +10,14 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FlexiCore.csproj", "FlexiCore/"]
-RUN dotnet restore "./FlexiCore/FlexiCore.csproj"
+COPY ["FlexiCore.csproj", "./"]
+RUN dotnet restore "FlexiCore.csproj"
 COPY . .
-WORKDIR "/src/FlexiCore"
-RUN dotnet build "./FlexiCore.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "FlexiCore.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./FlexiCore.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "FlexiCore.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

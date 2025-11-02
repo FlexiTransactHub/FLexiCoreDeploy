@@ -9,123 +9,148 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FlexiCore.styles.css" asp-append-version="true" />
-    <style>
-        body {
-            background-color: #0A3D62;
-            color: #ffffff;
-            font-family: 'Inter', 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background-color: #0A3D62;
-            padding: 10px 20px;
-            z-index: 1020;
-        }
-
-        .navbar-brand {
-            color: white !important;
-            font-weight: 900;
-            position: relative;
-            z-index: 2;
-        }
-
-            .navbar-brand::before {
-                content: '';
-                position: absolute;
-                top: -10px;
-                left: -10px;
-                width: 40px;
-                height: 40px;
-                background: url('https://via.placeholder.com/40?text=Logo') center/cover no-repeat;
-                opacity: 0.7;
-                z-index: -1;
-            }
-
-        .nav-link {
-            color: white !important;
-        }
-
-        .navbar-toggler {
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: #1877F2;
-            border: none;
-            font-weight: 700;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 0 15px rgba(24, 119, 242, 0.7);
-            }
-
-        .btn-outline-light {
-            border-color: #ffffff;
-            font-weight: 700;
-            transition: background-color 0.2s, box-shadow 0.2s;
-        }
-
-            .btn-outline-light:hover {
-                background-color: #1877F2;
-                box-shadow: 0 0 15px rgba(24, 119, 242, 0.7);
-            }
-        @@media (min-width: 769px) {
-            .authenticated .sidebar
-
-        {
-            display: block;
-        }
-
-        .authenticated .content {
-            margin-left: 250px;
-        }
-
-        }
- 
-
-        
-    </style>
 </head>
 <body class="@(User.Identity.IsAuthenticated ? "authenticated" : "")">
+    <!-- Background particles canvas -->
+    <canvas class="bg-particles" id="bg-particles"></canvas>
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark fixed-top">
             <div class="container-fluid">
                 <a class="navbar-brand ms-3 ms-sm-0" asp-area="" asp-controller="Home" asp-action="Index">FlexiTransact</a>
-                <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-  
+
     <div class="content">
         @RenderBody()
     </div>
-   @*  <br/>
-    <footer class="footer text-muted bg-dark">
-        <div class="container py-2 text-center">
-            <a asp-controller="Home" asp-action="Index" class="text-white me-3">Home</a>
-            <a asp-controller="Home" asp-action="Privacy" class="text-white me-3">Privacy</a>
-            <a asp-controller="Home" asp-action="About" class="text-white">About</a>
-            <p class="mb-0 mt-2">&copy; 2025 FlexiTransact</p>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-social">
+                    <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" title="Twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="#" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
+                </div>
+                <div class="footer-links">
+                    <a asp-controller="Home" asp-action="Index">Home</a>
+                    <a asp-controller="Home" asp-action="About">About</a>
+                    <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    <a asp-controller="Home" asp-action="Contact">Contact</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+                <p class="footer-copyright">&copy; 2025 FlexiTransact. All rights reserved.</p>
+            </div>
         </div>
-    </footer> *@
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     <script>
+        // Background particles animation
+        const bgCanvas = document.getElementById('bg-particles');
+        if (bgCanvas) {
+            const bgCtx = bgCanvas.getContext('2d');
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+
+            class BgParticle {
+                constructor() {
+                    this.x = Math.random() * bgCanvas.width;
+                    this.y = Math.random() * bgCanvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.5;
+                    this.speedY = (Math.random() - 0.5) * 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.2;
+                }
+
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x > bgCanvas.width) this.x = 0;
+                    if (this.x < 0) this.x = bgCanvas.width;
+                    if (this.y > bgCanvas.height) this.y = 0;
+                    if (this.y < 0) this.y = bgCanvas.height;
+                }
+
+                draw() {
+                    bgCtx.fillStyle = `rgba(24, 119, 242, ${this.opacity})`;
+                    bgCtx.beginPath();
+                    bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    bgCtx.fill();
+                }
+            }
+
+            const bgParticles = [];
+            for (let i = 0; i < 80; i++) {
+                bgParticles.push(new BgParticle());
+            }
+
+            function animateBgParticles() {
+                bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+                for (let i = 0; i < bgParticles.length; i++) {
+                    bgParticles[i].update();
+                    bgParticles[i].draw();
+
+                    for (let j = i + 1; j < bgParticles.length; j++) {
+                        const dx = bgParticles[i].x - bgParticles[j].x;
+                        const dy = bgParticles[i].y - bgParticles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            bgCtx.strokeStyle = `rgba(24, 119, 242, ${0.1 * (1 - distance / 120)})`;
+                            bgCtx.lineWidth = 1;
+                            bgCtx.beginPath();
+                            bgCtx.moveTo(bgParticles[i].x, bgParticles[i].y);
+                            bgCtx.lineTo(bgParticles[j].x, bgParticles[j].y);
+                            bgCtx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(animateBgParticles);
+            }
+
+            animateBgParticles();
+
+            window.addEventListener('resize', () => {
+                bgCanvas.width = window.innerWidth;
+                bgCanvas.height = window.innerHeight;
+            });
+        }
+
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+            }
         }
     </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

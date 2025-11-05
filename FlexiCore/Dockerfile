@@ -10,7 +10,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FlexiCore.csproj", "./"]
+COPY ["./FlexiCore.csproj", "./"]
 RUN dotnet restore "FlexiCore.csproj"
 COPY . .
 RUN dotnet build "FlexiCore.csproj" -c $BUILD_CONFIGURATION -o /app/build

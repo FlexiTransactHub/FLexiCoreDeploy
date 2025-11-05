@@ -2,109 +2,397 @@
 
 @{
     ViewData["Title"] = "Dashboard";
+    Layout = "_DashboardLayout";
 }
 
 <style>
-    body {
-        background-color: white;
-        color: #333;
+    .dashboard-header {
+        margin-bottom: 2rem;
     }
-    .card {
-        border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
     }
-    .card-header {
-        background-color: #1877F2;
-        color: white;
+
+    .dashboard-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
     }
-    .btn-primary {
-        background-color: #1877F2;
-        border-color: #1877F2;
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
-    .table thead {
-        background-color: #1877F2;
-        color: white;
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+            .stat-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+        .stat-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+
+        .stat-icon i {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+
+    /* Chart Cards */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .chart-badge {
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        color: var(--accent-primary);
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    /* Table */
+    .table-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        width: 100%;
+        margin: 0;
+    }
+
+        .custom-table thead {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+            .custom-table thead th {
+                color: white;
+                font-weight: 600;
+                padding: 1rem;
+                border: none;
+                font-size: 0.875rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .custom-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+            .custom-table tbody tr:hover {
+                background: var(--bg-primary);
+            }
+
+        .custom-table tbody td {
+            padding: 1rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+    /* Future Features */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .feature-item {
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .feature-item:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(5px);
+        }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-primary);
+        font-size: 1.25rem;
+    }
+
+    .feature-name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    @@media (max-width: 768px) {
+        .stats-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+
     }
 </style>
 
-<div class="container my-4">
-    <h1 class="text-center mb-4">Business Dashboard</h1>
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Businesses", Value = Model.TotalBusinesses.ToString(), Icon = "bi-building" }' />
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Business Dashboard</h1>
+    <p class="dashboard-subtitle">Welcome back! Here's what's happening with your business today.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-building"></i>
         </div>
-        <div class="col-md-3">
-            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Branches", Value = Model.TotalBranches.ToString(), Icon = "bi-shop" }' />
+        <div class="stat-label">Total Businesses</div>
+        <div class="stat-value">@Model.TotalBusinesses</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-shop"></i>
         </div>
-        <div class="col-md-3">
-            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Products", Value = Model.TotalProducts.ToString(), Icon = "bi-box-seam" }' />
+        <div class="stat-label">Total Branches</div>
+        <div class="stat-value">@Model.TotalBranches</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-box-seam"></i>
         </div>
-        <div class="col-md-3">
-            <partial name="_DashboardCard" model='new DashboardCardModel { Title = "Total Employees", Value = Model.TotalEmployees.ToString(), Icon = "bi-people" }' />
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value">@Model.TotalProducts</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="stat-label">Total Employees</div>
+        <div class="stat-value">@Model.TotalEmployees</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="chart-grid">
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Total Sales Amount</h3>
+            <span class="chart-badge">Revenue</span>
+        </div>
+        <div style="text-align: center; padding: 2rem 0;">
+            <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                @Model.TotalSalesAmount.ToString("C")
+            </div>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Total accumulated revenue</p>
         </div>
     </div>
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Total Sales Amount</div>
-                <div class="card-body text-center">
-                    <h3>@Model.TotalSalesAmount.ToString("C")</h3>
-                </div>
-            </div>
+
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Sales Trend</h3>
+            <span class="chart-badge">Last 7 Days</span>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Sales Trend (Last 7 Days)</div>
-                <div class="card-body">
-                    <canvas id="salesChart" height="200"></canvas>
-                </div>
-            </div>
-        </div>
+        <canvas id="salesChart" height="250"></canvas>
     </div>
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">Recent Sales</div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Branch</th>
-                                <th>Employee</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var sale in Model.RecentSales)
-                            {
-                                <tr>
-                                    <td>@sale.SaleDate.ToString("g")</td>
-                                    <td>@sale.Branch?.Name</td>
-                                    <td>@sale.Employee?.Name</td>
-                                    <td>@sale.TotalAmount.ToString("C")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+</div>
+
+<!-- Recent Sales Table -->
+<div class="table-card">
+    <div class="chart-header">
+        <h3 class="chart-title">Recent Sales</h3>
+        <span class="chart-badge">Latest</span>
     </div>
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">Future Functionalities</div>
-                <div class="card-body">
-                    <p>Placeholder for additional widgets, such as:</p>
-                    <ul>
-                        <li>Inventory Alerts</li>
-                        <li>Employee Performance</li>
-                        <li>Customer Analytics</li>
-                        <li>Branch Comparison</li>
-                    </ul>
-                </div>
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Branch</th>
+                    <th>Employee</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentSales.Any())
+                {
+                    @foreach (var sale in Model.RecentSales)
+                    {
+                        <tr>
+                            <td>@sale.SaleDate.ToString("g")</td>
+                            <td>@sale.Branch?.Name</td>
+                            <td>@sale.Employee?.Name</td>
+                            <td style="font-weight: 700; color: var(--accent-primary);">@sale.TotalAmount.ToString("C")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                            No recent sales to display
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Future Features -->
+<div class="table-card">
+    <div class="chart-header">
+        <h3 class="chart-title">Future Functionalities</h3>
+        <span class="chart-badge">Coming Soon</span>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Exciting features we're working on for you:</p>
+    <div class="features-grid">
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="bi bi-exclamation-triangle"></i>
             </div>
+            <span class="feature-name">Inventory Alerts</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <span class="feature-name">Employee Performance</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <span class="feature-name">Customer Analytics</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="bi bi-bar-chart"></i>
+            </div>
+            <span class="feature-name">Branch Comparison</span>
         </div>
     </div>
 </div>
@@ -112,27 +400,109 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var ctx = document.getElementById('salesChart').getContext('2d');
-        var salesChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [@string.Join(",", Model.SalesChartLabels.Select(l => $"'{l}'"))],
-                datasets: [{
-                    label: 'Sales',
-                    data: [@string.Join(",", Model.SalesChartValues)],
-                    borderColor: '#1877F2',
-                    backgroundColor: 'rgba(24, 119, 242, 0.2)',
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+        // Get theme colors
+        const getComputedColor = (variable) => {
+            return getComputedStyle(document.body).getPropertyValue(variable).trim();
+        };
+
+        const updateChart = () => {
+            const ctx = document.getElementById('salesChart');
+            if (!ctx) return;
+
+            // Destroy existing chart if it exists
+            if (window.salesChartInstance) {
+                window.salesChartInstance.destroy();
+            }
+
+            const textColor = getComputedColor('--text-primary');
+            const borderColor = getComputedColor('--border-color');
+
+            window.salesChartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [@string.Join(",", Model.SalesChartLabels.Select(l => $"'{l}'"))],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [@string.Join(",", Model.SalesChartValues)],
+                        borderColor: '#1877F2',
+                        backgroundColor: 'rgba(24, 119, 242, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#1877F2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            borderRadius: 8,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sales: $' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: borderColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+        };
+
+        // Initial chart creation
+        updateChart();
+
+        // Update chart when theme changes
+        const themeToggle = document.getElementById('toggleTheme');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                setTimeout(updateChart, 100);
+            });
+        }
     </script>
 }

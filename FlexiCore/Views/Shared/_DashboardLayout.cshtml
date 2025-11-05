@@ -6,124 +6,489 @@
     <title>@ViewData["Title"] - FlexiCore</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" />
     <style>
-        body {
-            background-color: white;
-            color: #333;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .sidebar {
+        :root {
+            --bg-primary: #f0f7ff;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a2332;
+            --text-secondary: #64748b;
+            --accent-primary: #1877F2;
+            --accent-secondary: #00d4ff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a1929;
+            --bg-secondary: #0d2847;
+            --bg-card: #1a2942;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: #2d3e57;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
-            height: 100%;
-            width: 250px;
-            background-color: #f8f9fa;
-            padding-top: 60px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            right: 0;
+            height: 70px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            transition: all 0.3s ease;
         }
 
-            .sidebar a {
-                color: #333;
-                padding: 10px 20px;
-                display: block;
-                text-decoration: none;
+        .top-navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        .top-navbar-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+            .control-btn:hover {
+                background: var(--accent-primary);
+                color: white;
+                transform: translateY(-2px);
             }
 
-                .sidebar a:hover {
-                    background-color: #1877F2;
-                    color: white;
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-primary);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .user-menu:hover {
+                background: var(--accent-primary);
+                color: white;
+            }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+            .sidebar.hidden {
+                transform: translateX(-100%);
+            }
+
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: var(--border-color);
+                border-radius: 3px;
+            }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 12px;
+            margin: 0.25rem 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .sidebar-link::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 3px;
+                background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+                transform: scaleY(0);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar-link:hover {
+                background: var(--bg-primary);
+                color: var(--accent-primary);
+            }
+
+            .sidebar-link.active {
+                background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+                color: var(--accent-primary);
+                font-weight: 600;
+            }
+
+                .sidebar-link.active::before {
+                    transform: scaleY(1);
                 }
 
-                .sidebar a.active {
-                    background-color: #1877F2;
-                    color: white;
-                }
+            .sidebar-link i {
+                font-size: 1.25rem;
+                margin-right: 1rem;
+                width: 24px;
+            }
 
-        .content {
-            margin-left: 250px;
-            padding: 20px;
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+            min-height: calc(100vh - 70px);
         }
 
-        .navbar {
-            background-color: #1877F2;
+            .main-content.expanded {
+                margin-left: 0;
+            }
+
+        /* Fullscreen Mode */
+        body.fullscreen .top-navbar,
+        body.fullscreen .sidebar {
+            display: none;
         }
 
-        .navbar-brand, .nav-link {
-            color: white !important;
+        body.fullscreen .main-content {
+            margin: 0;
+            padding: 2rem;
         }
+
+        /* Mobile Responsive */
+        @@media (max-width: 768px) {
+            .sidebar
+
+        {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .top-navbar {
+            padding: 0 1rem;
+        }
+
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu-custom {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            padding: 0.5rem;
+            display: none;
+            z-index: 1001;
+        }
+
+            .dropdown-menu-custom.show {
+                display: block;
+            }
+
+        .dropdown-item-custom {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+            .dropdown-item-custom:hover {
+                background: var(--bg-primary);
+                color: var(--accent-primary);
+            }
+
+            .dropdown-item-custom i {
+                font-size: 1.1rem;
+            }
     </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-dark fixed-top">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">FlexiCore</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse">
-                    <ul class="navbar-nav ms-auto">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Hello, @User.Identity.Name!</a>
-                            </li>
-                            <li class="nav-item">
-                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
-                                    <button type="submit" class="nav-link btn btn-link">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
-                            </li>
-                        }
-                    </ul>
+<body data-theme="light">
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <a class="top-navbar-brand" asp-controller="Home" asp-action="Index">FlexiCore</a>
+
+        <div class="top-navbar-controls">
+            <button class="control-btn" id="toggleSidebar" title="Toggle Sidebar">
+                <i class="bi bi-layout-sidebar"></i>
+            </button>
+            <button class="control-btn" id="toggleTheme" title="Toggle Theme">
+                <i class="bi bi-moon-fill"></i>
+            </button>
+            <button class="control-btn" id="toggleFullscreen" title="Toggle Fullscreen">
+                <i class="bi bi-arrows-fullscreen"></i>
+            </button>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar">@User.Identity.Name?.Substring(0, 1).ToUpper()</div>
+                    <span>@User.Identity.Name</span>
+                    <i class="bi bi-chevron-down"></i>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="sidebar">
-        <a asp-controller="Dashboard" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
-            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-        </a>
-        <a asp-controller="Businesses" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Businesses" ? "active" : "")">
-            <i class="bi bi-building me-2"></i>Businesses
-        </a>
-        <a asp-controller="Branches" asp-action="Index" asp-route-businessId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Branches" ? "active" : "")">
-            <i class="bi bi-shop me-2"></i>Branches
-        </a>
-        <a asp-controller="Products" asp-action="Index" asp-route-businessId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")">
-            <i class="bi bi-box-seam me-2"></i>Products
-        </a>
-        <a asp-controller="Employees" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")">
-            <i class="bi bi-people me-2"></i>Employees
-        </a>
-        <a asp-controller="Sales" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")">
-            <i class="bi bi-cart-check me-2"></i>Sales
-        </a>
-        <a asp-controller="Payments" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "active" : "")">
-            <i class="bi bi-credit-card me-2"></i>Payment
-        </a>
+                <div class="dropdown-menu-custom" id="userDropdown">
+                    <a class="dropdown-item-custom" asp-area="Identity" asp-page="/Account/Manage/Index">
+                        <i class="bi bi-person-circle"></i>
+                        <span>My Profile</span>
+                    </a>
+                    <a class="dropdown-item-custom" href="#">
+                        <i class="bi bi-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                    <hr style="margin: 0.5rem 0; border-color: var(--border-color);">
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post" style="margin: 0;">
+                        <button type="submit" class="dropdown-item-custom" style="width: 100%; background: none; border: none; text-align: left;">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <a class="control-btn" asp-area="Identity" asp-page="/Account/Login" title="Login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </a>
+            }
+        </div>
+    </nav>
 
-        <a asp-controller="OnlineStore" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "OnlineStore" ? "active" : "")">
-            <i class="bi bi-bag me-2"></i>Online Store
-        </a>
-        <a asp-controller="Hardware" asp-action="Index" asp-route-branchId="0" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Hardware" ? "active" : "")">
-            <i class="bi bi-display me-2"></i>Hardware
-        </a>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Main</div>
+            <a asp-controller="Dashboard" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
 
-    </div>
-    <div class="content">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Management</div>
+            <a asp-controller="Businesses" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Businesses" ? "active" : "")">
+                <i class="bi bi-building"></i>
+                <span>Businesses</span>
+            </a>
+            <a asp-controller="Branches" asp-action="Index" asp-route-businessId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Branches" ? "active" : "")">
+                <i class="bi bi-shop"></i>
+                <span>Branches</span>
+            </a>
+            <a asp-controller="Products" asp-action="Index" asp-route-businessId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")">
+                <i class="bi bi-box-seam"></i>
+                <span>Products</span>
+            </a>
+            <a asp-controller="Employees" asp-action="Index" asp-route-branchId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")">
+                <i class="bi bi-people"></i>
+                <span>Employees</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Operations</div>
+            <a asp-controller="Sales" asp-action="Index" asp-route-branchId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")">
+                <i class="bi bi-cart-check"></i>
+                <span>Sales</span>
+            </a>
+            <a asp-controller="Payments" asp-action="Index" asp-route-branchId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "active" : "")">
+                <i class="bi bi-credit-card"></i>
+                <span>Payments</span>
+            </a>
+            <a asp-controller="OnlineStore" asp-action="Index" asp-route-branchId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "OnlineStore" ? "active" : "")">
+                <i class="bi bi-bag"></i>
+                <span>Online Store</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">System</div>
+            <a asp-controller="Hardware" asp-action="Index" asp-route-branchId="0" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Hardware" ? "active" : "")">
+                <i class="bi bi-display"></i>
+                <span>Hardware</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
         @RenderBody()
-    </div>
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('toggleTheme');
+        const body = document.body;
+        const themeIcon = themeToggle.querySelector('i');
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'bi bi-sun-fill';
+            } else {
+                themeIcon.className = 'bi bi-moon-fill';
+            }
+        }
+
+        // Sidebar Toggle
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            mainContent.classList.toggle('expanded');
+        });
+
+        // Fullscreen Toggle
+        const toggleFullscreen = document.getElementById('toggleFullscreen');
+        const fullscreenIcon = toggleFullscreen.querySelector('i');
+
+        toggleFullscreen.addEventListener('click', () => {
+            body.classList.toggle('fullscreen');
+            if (body.classList.contains('fullscreen')) {
+                fullscreenIcon.className = 'bi bi-arrows-angle-contract';
+            } else {
+                fullscreenIcon.className = 'bi bi-arrows-fullscreen';
+            }
+        });
+
+        // User Dropdown
+        const userMenu = document.getElementById('userMenu');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userMenu && userDropdown) {
+            userMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        // Mobile Sidebar Toggle
+        if (window.innerWidth <= 768) {
+            toggleSidebar.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

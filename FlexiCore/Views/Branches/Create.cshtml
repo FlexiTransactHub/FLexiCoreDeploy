@@ -1,18 +1,285 @@
 ﻿@model FlexiCore.Models.Branch
 
-<h2>Create Branch</h2>
-<form asp-action="Create">
-    <input type="hidden" asp-for="BusinessId" />
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+@{
+    ViewData["Title"] = "Create Branch";
+    Layout = "_DashboardLayout";
+}
+
+<style>
+    .create-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
+            }
+
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .form-section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--accent-primary);
+        }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.938rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+            background: var(--bg-card);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.813rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-hint {
+        color: var(--text-secondary);
+        font-size: 0.813rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+
+        .form-hint i {
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-cancel:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+    @@media (max-width: 768px) {
+        .form-card
+
+    {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-submit, .btn-cancel {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="create-container">
+    <div class="breadcrumb-custom">
+        <a asp-controller="Businesses" asp-action="Index">
+            <i class="bi bi-building"></i> My Businesses
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <a asp-action="Index" asp-route-businessId="@Model.BusinessId">
+            <i class="bi bi-shop"></i> Branches
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Create New</span>
     </div>
-    <div class="form-group">
-        <label asp-for="Address"></label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
+
+    <div class="page-header">
+        <h1 class="page-title">Create New Branch</h1>
+        <p class="page-subtitle">Add a new location to expand your business operations</p>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
-<a asp-action="Index" asp-route-businessId="@Model.BusinessId">Back to List</a>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            <input type="hidden" asp-for="BusinessId" />
+
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Branch Information
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">
+                        Branch Name<span class="required">*</span>
+                    </label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g., Downtown Branch, Main Street Location" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="form-hint">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Use a descriptive name that helps identify the location</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Address" class="form-label">
+                        Branch Address<span class="required">*</span>
+                    </label>
+                    <input asp-for="Address" class="form-control" placeholder="Enter the complete street address" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                    <div class="form-hint">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Provide the full address including street, city, and postal code</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" asp-route-businessId="@Model.BusinessId" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Create Branch
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

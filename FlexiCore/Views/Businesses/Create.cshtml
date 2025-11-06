@@ -1,19 +1,412 @@
 ﻿@model FlexiCore.Models.Business
 
-<h2>Create Business</h2>
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+@{
+    ViewData["Title"] = "Create Business";
+    Layout = "_DashboardLayout";
+}
+
+<style>
+    .create-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
+            }
+
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .form-section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--accent-primary);
+        }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.938rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+            background: var(--bg-card);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.813rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* Business Type Selection */
+    .business-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .business-type-option {
+        position: relative;
+    }
+
+        .business-type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    .business-type-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--bg-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .business-type-option input:checked + .business-type-label {
+        border-color: var(--accent-primary);
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+    }
+
+    .business-type-label:hover {
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+    }
+
+    .business-type-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--bg-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .business-type-option input:checked + .business-type-label .business-type-icon {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+    .business-type-icon i {
+        color: var(--accent-primary);
+    }
+
+    .business-type-option input:checked + .business-type-label .business-type-icon i {
+        color: white;
+    }
+
+    .business-type-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-cancel:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+    .form-hint {
+        color: var(--text-secondary);
+        font-size: 0.813rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+
+        .form-hint i {
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+    @@media (max-width: 768px) {
+        .form-card
+
+    {
+        padding: 1.5rem;
+    }
+
+    .business-types {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-submit, .btn-cancel {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="create-container">
+    <div class="breadcrumb-custom">
+        <a asp-action="Index">
+            <i class="bi bi-building"></i> My Businesses
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Create New</span>
     </div>
-    <div class="form-group">
-        <label asp-for="BusinessType"></label>
-        <select asp-for="BusinessType" class="form-control">
-            <option value="Restaurant">Restaurant</option>
-            <option value="Pharmacy">Pharmacy</option>
-            <option value="Supermarket">Supermarket</option>
-        </select>
+
+    <div class="page-header">
+        <h1 class="page-title">Create New Business</h1>
+        <p class="page-subtitle">Set up your business profile to start managing operations</p>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Basic Information
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">
+                        Business Name<span class="required">*</span>
+                    </label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter your business name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="form-hint">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Choose a name that represents your brand and is easy to remember</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Business Type<span class="required">*</span>
+                    </label>
+                    <div class="business-types">
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Restaurant" id="type-restaurant" />
+                            <label for="type-restaurant" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-cup-hot"></i>
+                                </div>
+                                <span class="business-type-name">Restaurant</span>
+                            </label>
+                        </div>
+
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Pharmacy" id="type-pharmacy" />
+                            <label for="type-pharmacy" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-capsule"></i>
+                                </div>
+                                <span class="business-type-name">Pharmacy</span>
+                            </label>
+                        </div>
+
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Supermarket" id="type-supermarket" />
+                            <label for="type-supermarket" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-cart4"></i>
+                                </div>
+                                <span class="business-type-name">Supermarket</span>
+                            </label>
+                        </div>
+
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Retail" id="type-retail" />
+                            <label for="type-retail" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-shop"></i>
+                                </div>
+                                <span class="business-type-name">Retail</span>
+                            </label>
+                        </div>
+
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Cafe" id="type-cafe" />
+                            <label for="type-cafe" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-cup-straw"></i>
+                                </div>
+                                <span class="business-type-name">Café</span>
+                            </label>
+                        </div>
+
+                        <div class="business-type-option">
+                            <input type="radio" asp-for="BusinessType" value="Hotel" id="type-hotel" />
+                            <label for="type-hotel" class="business-type-label">
+                                <div class="business-type-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <span class="business-type-name">Hotel</span>
+                            </label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="BusinessType" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Create Business
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

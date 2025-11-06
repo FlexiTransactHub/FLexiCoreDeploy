@@ -1,34 +1,352 @@
 ﻿@model IEnumerable<FlexiCore.Models.Branch>
 
 @{
+    ViewData["Title"] = "Branches";
+    Layout = "_DashboardLayout";
     var businessId = ViewData["BusinessId"];
 }
 
-<h2>Branches</h2>
-<p>
-    <a asp-action="Create" asp-route-businessId="@businessId" class="btn btn-primary">Create New Branch</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
+            }
+
+    .btn-create {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+            color: white;
+        }
+
+        .btn-create i {
+            font-size: 1.1rem;
+        }
+
+    /* Branches Grid */
+    .branches-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .branch-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .branch-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .branch-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+
+            .branch-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .branch-header {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .branch-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        flex-shrink: 0;
+    }
+
+        .branch-icon i {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .branch-info {
+        flex: 1;
+    }
+
+    .branch-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .branch-address {
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+        .branch-address i {
+            margin-top: 0.125rem;
+            color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+    .branch-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .action-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1rem;
+        }
+
+    .action-btn-sales {
+        flex: 1.5;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+
+        .action-btn-sales:hover {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border: 2px dashed var(--border-color);
+        border-radius: 16px;
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .empty-icon i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    @@media (max-width: 768px) {
+        .branches-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .branch-actions {
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        min-width: calc(50% - 0.375rem);
+    }
+
+    .action-btn-sales {
+        flex: 1 1 100%;
+    }
+
+    }
+</style>
+
+<div class="breadcrumb-custom">
+    <a asp-controller="Businesses" asp-action="Index">
+        <i class="bi bi-building"></i> My Businesses
+    </a>
+    <i class="bi bi-chevron-right"></i>
+    <span><i class="bi bi-shop"></i> Branches</span>
+</div>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Branch Locations</h1>
+        <p class="page-subtitle">Manage all your business locations and their operations</p>
+    </div>
+    <a asp-action="Create" asp-route-businessId="@businessId" class="btn-create">
+        <i class="bi bi-plus-circle"></i>
+        Create New Branch
+    </a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="branches-grid">
         @foreach (var branch in Model)
         {
-            <tr>
-                <td>@branch.Name</td>
-                <td>@branch.Address</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@branch.Id">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@branch.Id">Delete</a> |
-                    <a asp-controller="Sales" asp-action="Index" asp-route-branchId="@branch.Id">View Sales</a>
-                </td>
-            </tr>
+            <div class="branch-card">
+                <div class="branch-header">
+                    <div class="branch-icon">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="branch-info">
+                        <h3 class="branch-name">@branch.Name</h3>
+                        <div class="branch-address">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>@branch.Address</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="branch-actions">
+                    <a asp-controller="Sales" asp-action="Index" asp-route-branchId="@branch.Id" class="action-btn action-btn-sales">
+                        <i class="bi bi-graph-up"></i>
+                        View Sales
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@branch.Id" class="action-btn">
+                        <i class="bi bi-pencil"></i>
+                        Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@branch.Id" class="action-btn">
+                        <i class="bi bi-trash"></i>
+                        Delete
+                    </a>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
-<a asp-controller="Businesses" asp-action="Index">Back to Businesses</a>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-shop"></i>
+        </div>
+        <h2 class="empty-title">No Branches Yet</h2>
+        <p class="empty-text">Start by creating your first branch location to manage sales and operations.</p>
+        <a asp-action="Create" asp-route-businessId="@businessId" class="btn-create">
+            <i class="bi bi-plus-circle"></i>
+            Create Your First Branch
+        </a>
+    </div>
+}

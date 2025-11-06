@@ -1,81 +1,416 @@
 ﻿@model IEnumerable<FlexiCore.Models.Employee>
+
 @{
     ViewData["Title"] = "Employees";
+    Layout = "_DashboardLayout";
     var branchNames = ViewData["BranchNames"] as Dictionary<int, string>;
     var businessNames = ViewData["BusinessNames"] as Dictionary<int, string>;
     var branchId = ViewData["BranchId"] as int?;
     var businessId = ViewData["BusinessId"] as int?;
 }
 
-<h2>Employees</h2>
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
 
-@if (branchId.HasValue)
-{
-    <p>
-        <a asp-action="Create" asp-route-branchId="@branchId" class="btn btn-primary">Create New Employee</a>
-    </p>
-}
-@if (!branchId.HasValue)
-{
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New Employee</a>
-    </p>
-}
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
+            }
+
+    .btn-create {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+            color: white;
+        }
+
+        .btn-create i {
+            font-size: 1.1rem;
+        }
+
+    /* Employees Grid */
+    .employees-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .employee-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .employee-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+
+            .employee-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .employee-header {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .employee-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        color: var(--accent-primary);
+        flex-shrink: 0;
+        text-transform: uppercase;
+    }
+
+    .employee-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .employee-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .employee-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-primary);
+        border-radius: 50px;
+        font-size: 0.813rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+        border: 1px solid var(--border-color);
+    }
+
+        .employee-role i {
+            font-size: 0.75rem;
+        }
+
+    .employee-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .employee-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+        .employee-detail i {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+    .employee-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .action-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1rem;
+        }
+
+    .action-btn-delete:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border: 2px dashed var(--border-color);
+        border-radius: 16px;
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .empty-icon i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    @@media (max-width: 768px) {
+        .employees-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .employee-actions {
+        flex-direction: column;
+    }
+
+    }
+</style>
+
+<div class="breadcrumb-custom">
+    <a asp-controller="Businesses" asp-action="Index">
+        <i class="bi bi-building"></i> My Businesses
+    </a>
+    @if (branchId.HasValue && businessId.HasValue)
+    {
+        <i class="bi bi-chevron-right"></i>
+        <a asp-controller="Branches" asp-action="Index" asp-route-businessId="@businessId">
+            <i class="bi bi-shop"></i> Branches
+        </a>
+    }
+    <i class="bi bi-chevron-right"></i>
+    <span><i class="bi bi-people"></i> Employees</span>
+</div>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Team Members</h1>
+        <p class="page-subtitle">Manage your workforce and employee information</p>
+    </div>
+    @if (branchId.HasValue)
+    {
+        <a asp-action="Create" asp-route-branchId="@branchId" class="btn-create">
+            <i class="bi bi-plus-circle"></i>
+            Add New Employee
+        </a>
+    }
+    else
+    {
+        <a asp-action="Create" class="btn-create">
+            <i class="bi bi-plus-circle"></i>
+            Add New Employee
+        </a>
+    }
+</div>
 
 @if (!Model.Any())
 {
-    <p>No employees found.</p>
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h2 class="empty-title">No Employees Yet</h2>
+        <p class="empty-text">Start building your team by adding your first employee.</p>
+        @if (branchId.HasValue)
+        {
+            <a asp-action="Create" asp-route-branchId="@branchId" class="btn-create">
+                <i class="bi bi-plus-circle"></i>
+                Add Your First Employee
+            </a>
+        }
+        else
+        {
+            <a asp-action="Create" class="btn-create">
+                <i class="bi bi-plus-circle"></i>
+                Add Your First Employee
+            </a>
+        }
+    </div>
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Branch</th>
-                <th>Business</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var employee in Model)
-            {
-                <tr>
-                    <td>@employee.Name</td>
-                    <td>@employee.Role</td>
-                    <td>@(branchNames.ContainsKey(employee.BranchId) ? branchNames[employee.BranchId] : "Unknown")</td>
-                    <td>
-                        @if (employee.Branch != null && businessNames != null && businessNames.ContainsKey(employee.Branch.BusinessId))
-                        {
-                            @businessNames[employee.Branch.BusinessId]
-                        }
-                        else
-                        {
-                            @:Unknown
-                        }
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@employee.Id" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <div class="employees-grid">
+        @foreach (var employee in Model)
+        {
+            <div class="employee-card">
+                <div class="employee-header">
+                    <div class="employee-avatar">
+                        @employee.Name.Substring(0, Math.Min(2, employee.Name.Length))
+                    </div>
+                    <div class="employee-info">
+                        <h3 class="employee-name" title="@employee.Name">@employee.Name</h3>
+                        <span class="employee-role">
+                            <i class="bi bi-star-fill"></i>
+                            @employee.Role
+                        </span>
+                    </div>
+                </div>
 
-@if (branchId.HasValue && businessId.HasValue)
-{
-    <p>
-        <a asp-controller="Branches" asp-action="Index" asp-route-businessId="@businessId" class="btn btn-secondary">Back to Branches</a>
-    </p>
-}
-else
-{
-    <p>
-        <a asp-controller="Businesses" asp-action="Index" class="btn btn-secondary">Back to Businesses</a>
-    </p>
+                <div class="employee-details">
+                    <div class="employee-detail">
+                        <i class="bi bi-shop"></i>
+                        <span>@(branchNames.ContainsKey(employee.BranchId) ? branchNames[employee.BranchId] : "Unknown Branch")</span>
+                    </div>
+                    <div class="employee-detail">
+                        <i class="bi bi-building"></i>
+                        <span>
+                            @if (employee.Branch != null && businessNames != null && businessNames.ContainsKey(employee.Branch.BusinessId))
+                            {
+                                @businessNames[employee.Branch.BusinessId]
+                            }
+                            else
+                            {
+                                @:Unknown Business
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <div class="employee-actions">
+                    <a asp-action="Edit" asp-route-id="@employee.Id" class="action-btn">
+                        <i class="bi bi-pencil"></i>
+                        Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@employee.Id" class="action-btn action-btn-delete">
+                        <i class="bi bi-trash"></i>
+                        Delete
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
 }
 
 @section Scripts {

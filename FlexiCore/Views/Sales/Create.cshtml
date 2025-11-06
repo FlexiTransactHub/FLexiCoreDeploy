@@ -1,96 +1,554 @@
 ﻿@model FlexiCore.Models.Sale
 @using FlexiCore.Models
 
-<h2>Create Sale</h2>
-<form asp-action="Create">
-    @{
-        var branch = ViewData["Branch"] as Branch;
-        var branches = ViewData["Branches"] as List<Branch> ?? new List<Branch>();
+@{
+    ViewData["Title"] = "Create Sale";
+    Layout = "_DashboardLayout";
+    var branch = ViewData["Branch"] as Branch;
+    var branches = ViewData["Branches"] as List<Branch> ?? new List<Branch>();
+    var employees = ViewData["Employees"] as List<Employee> ?? new List<Employee>();
+    var products = ViewData["Products"] as List<Product> ?? new List<Product>();
+    var services = ViewData["Services"] as List<Service> ?? new List<Service>();
+}
+
+<style>
+    .create-container {
+        max-width: 1000px;
+        margin: 0 auto;
     }
 
-    @if (branch != null)
-    {
-        <input type="hidden" asp-for="BranchId" />
-        <div class="form-group">
-            <label>Branch</label>
-            <input type="text" class="form-control" value="@branch.Name" readonly />
-        </div>
-    }
-    else
-    {
-        <div class="form-group">
-            <label asp-for="BranchId">Branch</label>
-            <select asp-for="BranchId" class="form-control" required>
-                <option value="">Select Branch</option>
-                @if (branches != null)
-                {
-                    @foreach (var b in branches)
-                    {
-                        <option value="@b.Id">@b.Name</option>
-                    }
-                }
-            </select>
-            <span asp-validation-for="BranchId" class="text-danger"></span>
-        </div>
+    .page-header {
+        margin-bottom: 2rem;
     }
 
-    <div class="form-group">
-        <label asp-for="EmployeeId"></label>
-        <select asp-for="EmployeeId" class="form-control">
-            <option value="">Select Employee</option>
-            @foreach (var employee in ViewData["Employees"] as List<Employee> ?? new List<Employee>())
-            {
-                <option value="@employee.Id">@employee.Name</option>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
             }
-        </select>
-        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .form-section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #10b981;
+        }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.938rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            background: var(--bg-card);
+        }
+
+        .form-control:disabled, .form-control:read-only {
+            background: var(--bg-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 3rem;
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.813rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* Sale Items Table */
+    .items-section {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .items-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .items-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .items-title i {
+            color: #10b981;
+        }
+
+    .btn-add-item {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-add-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+    .items-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .items-table thead th {
+            background: var(--bg-card);
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-size: 0.813rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+            .items-table thead th:first-child {
+                border-top-left-radius: 8px;
+            }
+
+            .items-table thead th:last-child {
+                border-top-right-radius: 8px;
+            }
+
+        .items-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .items-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .item-row {
+        background: var(--bg-card);
+        transition: all 0.2s ease;
+    }
+
+        .item-row:hover {
+            background: var(--bg-primary);
+        }
+
+    .item-selects {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .select-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .item-actions {
+        text-align: center;
+    }
+
+    .btn-remove-item {
+        background: transparent;
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        padding: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-remove-item:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-remove-item i {
+            font-size: 1rem;
+        }
+
+    /* Total Summary */
+    .total-summary {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .total-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .total-value {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-cancel:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+    @@media (max-width: 768px) {
+        .form-card
+
+    {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .items-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-submit, .btn-cancel {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="create-container">
+    <div class="breadcrumb-custom">
+        <a asp-controller="Businesses" asp-action="Index">
+            <i class="bi bi-building"></i> My Businesses
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <a asp-controller="Branches" asp-action="Index">
+            <i class="bi bi-shop"></i> Branches
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <a asp-action="Index" asp-route-branchId="@Model.BranchId">
+            <i class="bi bi-graph-up"></i> Sales
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Create New</span>
     </div>
-    <div class="form-group">
-        <h4>Sale Items</h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product/Service</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                </tr>
-            </thead>
-            //pushing comment 
-            <tbody id="saleItems">
-                <tr>
-                    <td>
-                        <select name="productIds" class="form-control">
-                            <option value="0">Select Product</option>
-                            @foreach (var product in ViewData["Products"] as List<Product> ?? new List<Product>())
+
+    <div class="page-header">
+        <h1 class="page-title">Record New Sale</h1>
+        <p class="page-subtitle">Create a new sales transaction with products or services</p>
+    </div>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Sale Information
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Branch<span class="required">*</span>
+                        </label>
+                        @if (branch != null)
+                        {
+                            <input type="hidden" asp-for="BranchId" />
+                            <input type="text" class="form-control" value="@branch.Name" readonly />
+                        }
+                        else
+                        {
+                            <select asp-for="BranchId" class="form-control" required>
+                                <option value="">Select Branch</option>
+                                @foreach (var b in branches)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="BranchId" class="text-danger"></span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="EmployeeId" class="form-label">
+                            Employee<span class="required">*</span>
+                        </label>
+                        <select asp-for="EmployeeId" class="form-control" required>
+                            <option value="">Select Employee</option>
+                            @foreach (var employee in employees)
                             {
-                                <option value="@product.Id">@product.Name</option>
+                                <option value="@employee.Id">@employee.Name</option>
                             }
                         </select>
-                        <select name="serviceIds" class="form-control">
-                            <option value="0">Select Service</option>
-                            @foreach (var service in ViewData["Services"] as List<Service> ?? new List<Service>())
-                            {
-                                <option value="@service.Id">@service.Name</option>
-                            }
-                        </select>
-                    </td>
-                    <td><input type="number" name="quantities" class="form-control" min="1" /></td>
-                    <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" /></td>
-                </tr>
-            </tbody>
-        </table>
-        <button type="button" onclick="addSaleItem()" class="btn btn-secondary">Add Item</button>
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="items-section">
+                <div class="items-header">
+                    <h4 class="items-title">
+                        <i class="bi bi-cart"></i>
+                        Sale Items
+                    </h4>
+                    <button type="button" onclick="addSaleItem()" class="btn-add-item">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Item
+                    </button>
+                </div>
+
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Product/Service</th>
+                            <th style="width: 150px;">Quantity</th>
+                            <th style="width: 150px;">Unit Price</th>
+                            <th style="width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="saleItems">
+                        <tr class="item-row">
+                            <td>
+                                <div class="item-selects">
+                                    <div>
+                                        <div class="select-label">Product</div>
+                                        <select name="productIds" class="form-control">
+                                            <option value="0">Select Product</option>
+                                            @foreach (var product in products)
+                                            {
+                                                <option value="@product.Id">@product.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <div class="select-label">Service</div>
+                                        <select name="serviceIds" class="form-control">
+                                            <option value="0">Select Service</option>
+                                            @foreach (var service in services)
+                                            {
+                                                <option value="@service.Id">@service.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><input type="number" name="quantities" class="form-control" min="1" value="1" /></td>
+                            <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" placeholder="0.00" /></td>
+                            <td class="item-actions">
+                                <button type="button" class="btn-remove-item" onclick="removeItem(this)" title="Remove Item">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="total-summary">
+                    <span class="total-label">Estimated Total:</span>
+                    <span class="total-value" id="totalAmount">$0.00</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                @if (Model.BranchId > 0)
+                {
+                    <a asp-action="Index" asp-route-branchId="@Model.BranchId" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+                    </a>
+                }
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Record Sale
+                </button>
+            </div>
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
-@if (Model.BranchId > 0)
-{
-    <a asp-action="Index" asp-route-branchId="@Model.BranchId">Back to List</a>
-}
-else
-{
-    <a asp-action="Index">Back to List</a>
-}
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -98,26 +556,77 @@ else
         function addSaleItem() {
             var table = document.getElementById("saleItems");
             var row = table.insertRow();
+            row.className = 'item-row';
             row.innerHTML = `
                 <td>
-                    <select name="productIds" class="form-control">
-                        <option value="0">Select Product</option>
-                        @foreach (var product in ViewData["Products"] as List<Product> ?? new List<Product>())
-                        {
-                                <option value="@product.Id">@product.Name</option>
-                        }
-                    </select>
-                    <select name="serviceIds" class="form-control">
-                        <option value="0">Select Service</option>
-                        @foreach (var service in ViewData["Services"] as List<Service> ?? new List<Service>())
-                        {
-                                <option value="@service.Id">@service.Name</option>
-                        }
-                    </select>
+                    <div class="item-selects">
+                        <div>
+                            <div class="select-label">Product</div>
+                            <select name="productIds" class="form-control">
+                                <option value="0">Select Product</option>
+                                @foreach (var product in products)
+                                {
+                                        <text><option value="@product.Id">@product.Name</option></text>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <div class="select-label">Service</div>
+                            <select name="serviceIds" class="form-control">
+                                <option value="0">Select Service</option>
+                                @foreach (var service in services)
+                                {
+                                        <text><option value="@service.Id">@service.Name</option></text>
+                                }
+                            </select>
+                        </div>
+                    </div>
                 </td>
-                <td><input type="number" name="quantities" class="form-control" min="1" /></td>
-                <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" /></td>
+                <td><input type="number" name="quantities" class="form-control" min="1" value="1" onchange="updateTotal()" /></td>
+                <td><input type="number" name="unitPrices" class="form-control" step="0.01" min="0" placeholder="0.00" onchange="updateTotal()" /></td>
+                <td class="item-actions">
+                    <button type="button" class="btn-remove-item" onclick="removeItem(this)" title="Remove Item">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
             `;
+            updateTotal();
         }
+
+        function removeItem(button) {
+            var row = button.closest('tr');
+            var table = document.getElementById("saleItems");
+            if (table.rows.length > 1) {
+                row.remove();
+                updateTotal();
+            } else {
+                alert('At least one item is required for a sale.');
+            }
+        }
+
+        function updateTotal() {
+            var quantities = document.getElementsByName('quantities');
+            var prices = document.getElementsByName('unitPrices');
+            var total = 0;
+
+            for (var i = 0; i < quantities.length; i++) {
+                var qty = parseFloat(quantities[i].value) || 0;
+                var price = parseFloat(prices[i].value) || 0;
+                total += qty * price;
+            }
+
+            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+        }
+
+        // Add event listeners to initial row
+        document.addEventListener('DOMContentLoaded', function() {
+            var quantities = document.getElementsByName('quantities');
+            var prices = document.getElementsByName('unitPrices');
+
+            for (var i = 0; i < quantities.length; i++) {
+                quantities[i].addEventListener('change', updateTotal);
+                prices[i].addEventListener('change', updateTotal);
+            }
+        });
     </script>
 }

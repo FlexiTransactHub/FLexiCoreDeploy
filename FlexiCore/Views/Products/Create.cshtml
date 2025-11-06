@@ -1,41 +1,477 @@
 ﻿@model FlexiCore.Models.Product
 
-<h2>Create Product</h2>
-<form asp-action="Create">
-    <input type="hidden" asp-for="BusinessId" />
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+@{
+    ViewData["Title"] = "Create Product";
+    Layout = "_DashboardLayout";
+}
+
+<style>
+    .create-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .breadcrumb-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: var(--accent-secondary);
+            }
+
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .form-section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--accent-primary);
+        }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.938rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+            background: var(--bg-card);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 3rem;
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.813rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-hint {
+        color: var(--text-secondary);
+        font-size: 0.813rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+
+        .form-hint i {
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+    .input-with-icon {
+        position: relative;
+    }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .input-with-icon .form-control {
+            padding-left: 2.75rem;
+        }
+
+    /* Category Selection */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .category-option {
+        position: relative;
+    }
+
+        .category-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    .category-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.25rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--bg-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .category-option input:checked + .category-label {
+        border-color: var(--accent-primary);
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.1), rgba(0, 212, 255, 0.1));
+    }
+
+    .category-label:hover {
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+    }
+
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--bg-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .category-option input:checked + .category-label .category-icon {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+    .category-icon i {
+        color: var(--accent-primary);
+    }
+
+    .category-option input:checked + .category-label .category-icon i {
+        color: white;
+    }
+
+    .category-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .btn-cancel:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+    @@media (max-width: 768px) {
+        .form-card
+
+    {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-submit, .btn-cancel {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="create-container">
+    <div class="breadcrumb-custom">
+        <a asp-controller="Businesses" asp-action="Index">
+            <i class="bi bi-building"></i> My Businesses
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <a asp-action="Index" asp-route-businessId="@Model.BusinessId">
+            <i class="bi bi-box-seam"></i> Products
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Create New</span>
     </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
+
+    <div class="page-header">
+        <h1 class="page-title">Create New Product</h1>
+        <p class="page-subtitle">Add a new product to your inventory catalog</p>
     </div>
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" type="number" step="0.01" />
-        <span asp-validation-for="Price" class="text-danger"></span>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            <input type="hidden" asp-for="BusinessId" />
+
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Basic Information
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">
+                        Product Name<span class="required">*</span>
+                    </label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter product name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">
+                        Description
+                    </label>
+                    <textarea asp-for="Description" class="form-control" placeholder="Provide a detailed description of the product"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <div class="form-hint">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Include key features, specifications, or important details</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Category<span class="required">*</span>
+                    </label>
+                    <div class="category-grid">
+                        <div class="category-option">
+                            <input type="radio" asp-for="Category" value="Food" id="cat-food" />
+                            <label for="cat-food" class="category-label">
+                                <div class="category-icon">
+                                    <i class="bi bi-cup-hot"></i>
+                                </div>
+                                <span class="category-name">Food</span>
+                            </label>
+                        </div>
+
+                        <div class="category-option">
+                            <input type="radio" asp-for="Category" value="Medicine" id="cat-medicine" />
+                            <label for="cat-medicine" class="category-label">
+                                <div class="category-icon">
+                                    <i class="bi bi-capsule"></i>
+                                </div>
+                                <span class="category-name">Medicine</span>
+                            </label>
+                        </div>
+
+                        <div class="category-option">
+                            <input type="radio" asp-for="Category" value="Grocery" id="cat-grocery" />
+                            <label for="cat-grocery" class="category-label">
+                                <div class="category-icon">
+                                    <i class="bi bi-cart4"></i>
+                                </div>
+                                <span class="category-name">Grocery</span>
+                            </label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-cash-stack"></i>
+                    Pricing & Inventory
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Price" class="form-label">
+                            Price<span class="required">*</span>
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-currency-dollar"></i>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StockQuantity" class="form-label">
+                            Stock Quantity<span class="required">*</span>
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-box"></i>
+                            <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="0" />
+                        </div>
+                        <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-hint">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Set the initial stock quantity. You can update this later as inventory changes.</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" asp-route-businessId="@Model.BusinessId" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Create Product
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="StockQuantity"></label>
-        <input asp-for="StockQuantity" class="form-control" type="number" />
-        <span asp-validation-for="StockQuantity" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Category"></label>
-        <select asp-for="Category" class="form-control">
-            <option value="">Select Category</option>
-            <option value="Food">Food</option>
-            <option value="Medicine">Medicine</option>
-            <option value="Grocery">Grocery</option>
-        </select>
-        <span asp-validation-for="Category" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
-<a asp-action="Index" asp-route-businessId="@Model.BusinessId">Back to List</a>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

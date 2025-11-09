@@ -15,5 +15,6 @@
         public string LinkId { get; set; } // New field for GUID
         public string OwnerId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string ProductName { get; set; }  // Add this line
     }
 }

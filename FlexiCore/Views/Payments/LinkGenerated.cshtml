@@ -1,50 +1,564 @@
 ﻿@model FlexiCore.Models.PaymentLink
 
-<div class="container py-4">
-    <h2 class="display-6 fw-bold text-white mb-4">Payment Link Generated</h2>
-    <div class="card bg-dark border-primary shadow-glow">
-        <div class="card-body">
-            <h5 class="text-white fw-bold">Payment Link</h5>
-            <textarea class="form-control bg-dark text-white border-primary" rows="2" readonly>@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)</textarea>
-            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('paymentLink')">Copy</button>
+@{
+    ViewData["Title"] = "Payment Link Generated";
+    Layout = "_DashboardLayout";
+    var qrCode = ViewData["QrCodeImage"] as string;
+}
 
-            <h5 class="text-white fw-bold mt-3">Branded "Pay Now" Button</h5>
-            <textarea id="buttonCode" class="form-control bg-dark text-white border-primary" rows="4" readonly>
-            <a href="@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)" class="btn btn-@ViewBag.ButtonColor" style="padding: 12px 20px; border-radius: 8px; text-decoration: none; font-family: Inter, sans-serif; font-weight: 600;">Pay Now</a>
-            </textarea>
-            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('buttonCode')">Copy</button>
+<style>
+    .success-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
 
-            <h5 class="text-white fw-bold mt-3">WhatsApp Share Link</h5>
-            <textarea id="whatsappLink" class="form-control bg-dark text-white border-primary" rows="2" readonly>
-                https://wa.me/?text=@@(Uri.EscapeDataString($"Pay {Model.Amount:C} for your purchase: {Request.Scheme}://{Request.Host}{Model.LinkUrl}"))
-            </textarea>
-            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('whatsappLink')">Copy</button>
+    .success-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-            <h5 class="text-white fw-bold mt-3">Iframe Embed Code</h5>
-            <textarea id="iframeCode" class="form-control bg-dark text-white border-primary" rows="4" readonly>
-            <iframe src="@@(Request.Scheme + "://" + Request.Host + Model.LinkUrl)" style="border: none; width: 100%; height: 400px;"></iframe>
-            </textarea>
-            <button class="btn btn-primary btn-sm mt-2" onclick="copyToClipboard('iframeCode')">Copy</button>
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scaleIn 0.5s ease;
+    }
 
-            <div class="d-flex gap-3 mt-4">
-                <a asp-action="Create" asp-controller="Payments" class="btn btn-primary btn-lg">Create Another</a>
-                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-light btn-lg">Back to Home</a>
+        .success-icon i {
+            font-size: 3.5rem;
+            color: #10b981;
+        }
+
+    @@keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .success-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .success-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .info-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .info-icon i {
+            font-size: 1.125rem;
+            color: #8b5cf6;
+        }
+
+    .info-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-label {
+        font-size: 0.813rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        word-break: break-word;
+    }
+
+    .link-box {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .link-label {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .link-label i {
+            color: #8b5cf6;
+        }
+
+    .link-display {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .link-text {
+        flex: 1;
+        color: #8b5cf6;
+        font-weight: 600;
+        font-size: 0.938rem;
+        word-break: break-all;
+        font-family: monospace;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .btn-action {
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.938rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-copy {
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            color: white;
+        }
+
+    .btn-open {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+        .btn-open:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+            color: var(--text-primary);
+        }
+
+    .qr-section {
+        text-align: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 1.5rem;
+    }
+
+    .qr-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .qr-title i {
+            color: #8b5cf6;
+        }
+
+    .qr-code-wrapper {
+        display: inline-block;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .qr-code-img {
+        display: block;
+        max-width: 220px;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .qr-hint {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+        .qr-hint i {
+            color: #8b5cf6;
+        }
+
+    .next-steps {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+
+    .next-steps-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .next-steps-title i {
+            color: #8b5cf6;
+        }
+
+    .step-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.938rem;
+        flex-shrink: 0;
+    }
+
+    .step-content {
+        flex: 1;
+        padding-top: 0.25rem;
+    }
+
+    .step-text {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .step-hint {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .bottom-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-secondary {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+    .btn-primary {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white;
+        border: none;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            color: white;
+        }
+
+    .copy-feedback {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #10b981;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        z-index: 1000;
+        animation: slideInUp 0.3s ease;
+    }
+
+        .copy-feedback.show {
+            display: flex;
+        }
+
+    @@keyframes slideInUp {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .bottom-actions {
+            flex-direction: column;
+        }
+
+        .btn-secondary, .btn-primary {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-header">
+        <div class="success-icon">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h1 class="success-title">Payment Link Created!</h1>
+        <p class="success-subtitle">Your payment link is ready to share with customers</p>
+    </div>
+
+    <div class="info-card">
+        @if (!string.IsNullOrEmpty(Model.ProductName))
+        {
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Product/Service</div>
+                    <div class="info-value">@Model.ProductName</div>
+                </div>
+            </div>
+        }
+
+        <div class="info-item">
+            <div class="info-icon">
+                <i class="bi bi-currency-exchange"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label">Amount</div>
+                <div class="info-value">₦@Model.Amount.ToString("N2")</div>
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon">
+                <i class="bi bi-hash"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label">Link ID</div>
+                <div class="info-value" style="font-family: monospace;">@Model.LinkId</div>
             </div>
         </div>
     </div>
+
+    <div class="link-box">
+        <div class="link-label">
+            <i class="bi bi-link-45deg"></i>
+            Your Payment Link
+        </div>
+        <div class="link-display">
+            <span class="link-text" id="paymentLink">@Model.LinkUrl</span>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-action btn-copy" onclick="copyToClipboard()">
+                <i class="bi bi-clipboard"></i>
+                Copy Link
+            </button>
+            <a href="@Model.LinkUrl" target="_blank" class="btn-action btn-open">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Open Link
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(qrCode))
+    {
+        <div class="qr-section">
+            <h3 class="qr-title">
+                <i class="bi bi-qr-code"></i>
+                QR Code for Easy Sharing
+            </h3>
+            <div class="qr-code-wrapper">
+                <img src="@qrCode" alt="Payment QR Code" class="qr-code-img" />
+            </div>
+            <p class="qr-hint">
+                <i class="bi bi-phone"></i>
+                Customers can scan this code with their phone to pay instantly
+            </p>
+        </div>
+    }
+
+    <div class="next-steps">
+        <h3 class="next-steps-title">
+            <i class="bi bi-list-check"></i>
+            Next Steps
+        </h3>
+        <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <div class="step-text">Share the payment link</div>
+                <div class="step-hint">Send via WhatsApp, email, or social media to your customers</div>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <div class="step-text">Display the QR code</div>
+                <div class="step-hint">Print or display digitally at your business location</div>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <div class="step-text">Track transactions</div>
+                <div class="step-hint">Monitor payments in your Payments Dashboard</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <a asp-action="Index" asp-controller="Payments" class="btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+        </a>
+        <a asp-action="Create" asp-controller="Payments" class="btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Create Another Link
+        </a>
+    </div>
+</div>
+
+<div class="copy-feedback" id="copyFeedback">
+    <i class="bi bi-check-circle-fill"></i>
+    Link copied to clipboard!
 </div>
 
 @section Scripts {
     <script>
-        function copyToClipboard(elementId) {
-            const textarea = document.getElementById(elementId) || document.querySelector("textarea:not([id])");
-            textarea.select();
-            try {
-                document.execCommand("copy");
-                alert("Copied to clipboard!");
-            } catch (err) {
-                alert("Failed to copy. Please copy manually.");
-            }
+        function copyToClipboard() {
+            const linkText = document.getElementById('paymentLink').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const feedback = document.getElementById('copyFeedback');
+                feedback.classList.add('show');
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 3000);
+            }).catch(err => {
+                alert('Failed to copy link. Please copy manually.');
+            });
         }
     </script>
 }
